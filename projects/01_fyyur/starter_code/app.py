@@ -14,6 +14,7 @@ from logging import Formatter, FileHandler
 from flask_wtf import Form
 from flask_migrate import Migrate
 from forms import *
+
 #----------------------------------------------------------------------------#
 # App Config.
 #----------------------------------------------------------------------------#
@@ -31,6 +32,13 @@ migrate = Migrate(app, db)
 # Models.
 #----------------------------------------------------------------------------#
 
+show = db.Table('show', 
+    db.Column('Artist_id', db.Integer, db.ForeignKey('Artist.id'), primary_key=True), 
+    db.Column('Venue_id', db.Integer, db.ForeignKey('Venue.id'), primary_key=True), 
+    db.Column('start_time', db.DateTime),
+)
+
+
 class Venue(db.Model):
     __tablename__ = 'Venue'
 
@@ -40,13 +48,20 @@ class Venue(db.Model):
     state = db.Column(db.String(120))
     address = db.Column(db.String(120))
     phone = db.Column(db.String(120))
-    image_link = db.Column(db.String(500))
+    genres = db.Column(db.String(120))
     facebook_link = db.Column(db.String(120))
+    image_link = db.Column(db.String(500))
+    website_link = db.Column(db.String(120))
+    looking_for_talent = db.Column(db.Boolean, nullable=False, default=False)
+    seeking_description = db.Column(db.String(500))
+    artists = db.relationship('Artist', secondary=show,
+                              backref=db.backref('Venue', lazy=True))
 
     def __repr__(self):
         return 'Venue {} {} {} {} {} {} {} {}'.format(self.id, self.name, self.city, self.state, self.address, self.phone, self.image_link, self.facebook_link)
 
     # TODO: implement any missing fields, as a database migration using Flask-Migrate
+
 
 class Artist(db.Model):
     __tablename__ = 'Artist'
@@ -57,8 +72,11 @@ class Artist(db.Model):
     state = db.Column(db.String(120))
     phone = db.Column(db.String(120))
     genres = db.Column(db.String(120))
-    image_link = db.Column(db.String(500))
     facebook_link = db.Column(db.String(120))
+    image_link = db.Column(db.String(500))
+    website_link = db.Column(db.String(120))
+    looking_for_venues = db.Column(db.Boolean, nullable=False, default=False)
+    seeking_description = db.Column(db.String(500))
 
     def __repr__(self):
       return 'Artist {} {} {} {} {} {} {} {}'.format(self.id, self.name, self.city, self.state, self.phone, self.genres, self.image_link, self.facebook_link)
@@ -66,6 +84,7 @@ class Artist(db.Model):
     # TODO: implement any missing fields, as a database migration using Flask-Migrate
 
 # TODO Implement Show and Artist models, and complete all model relationships and properties, as a database migration.
+
 
 #----------------------------------------------------------------------------#
 # Filters.
