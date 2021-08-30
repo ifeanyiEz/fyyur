@@ -58,7 +58,7 @@ class Venue(db.Model):
                               backref=db.backref('Venue', lazy=True))
 
     def __repr__(self):
-        return 'Venue {} {} {} {} {} {} {} {}'.format(self.id, self.name, self.city, self.state, self.address, self.phone, self.image_link, self.facebook_link)
+        return 'Venue {} {} {} {} {} {} {} {} {} {} {} {}'.format(self.id, self.name, self.city, self.state, self.address, self.phone, self.genres, self.facebook_link, self.image_link, self.website_link, self.looking_for_talent, self.seeking_description)
 
     # TODO: implement any missing fields, as a database migration using Flask-Migrate
 
@@ -79,7 +79,7 @@ class Artist(db.Model):
     seeking_description = db.Column(db.String(500))
 
     def __repr__(self):
-      return 'Artist {} {} {} {} {} {} {} {}'.format(self.id, self.name, self.city, self.state, self.phone, self.genres, self.image_link, self.facebook_link)
+      return 'Artist {} {} {} {} {} {} {} {} {} {} {}'.format(self.id, self.name, self.city, self.state, self.phone, self.genres, self.facebook_link, self.image_link, self.website_link, self.looking_for_venues, self.seeking_description)
 
     # TODO: implement any missing fields, as a database migration using Flask-Migrate
 
