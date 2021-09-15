@@ -381,9 +381,34 @@ def search_artists():
 @app.route('/artists/<int:artist_id>')
 def show_artist(artist_id):
   # shows the artist page with the given artist_id
-  # TODO: replace with real artist data from the artist table, using artist_id
-  artist = Artist.query.get_or_404(artist_id)
+  # COMPLETE: replace with real artist data from the artist table, using artist_id
   data = {}
+  past_shows = []
+  upcoming_shows = []
+  artist = Artist.query.get_or_404(artist_id)
+
+  artist_past_shows = db.session.query(Show).join(Artist).filter((Show.c.artist_id == artist_id) & (Show.c.start_time <= datetime.now())).all()
+  for past_show in artist_past_shows:
+    past_show_venues = db.session.query(Venue).join(Show).filter(Venue.id == past_show.venue_id).all()
+    for past_show_venue in past_show_venues:
+      past_shows.append({
+          'venue_id': past_show.venue_id,
+          'venue_name': past_show_venue.name,
+          'venue_image_link': past_show_venue.image_link,
+          'start_time': past_show.start_time.strftime("%m/%d/%Y, %H:%M")
+      })
+
+  artist_upcoming_shows = db.session.query(Show).join(Artist).filter((Show.c.artist_id == artist_id) & (Show.c.start_time > datetime.now())).all()
+  for upcoming_show in artist_upcoming_shows:
+    upcoming_show_venues = db.session.query(Venue).join(Show).filter(Venue.id == upcoming_show.venue_id).all()
+    for upcoming_show_venue in upcoming_show_venues:
+      upcoming_shows.append({
+          'venue_id': upcoming_show.venue_id,
+          'venue_name': upcoming_show_venue.name,
+          'venue_image_link': upcoming_show_venue.image_link,
+          'start_time': upcoming_show.start_time.strftime("%m/%d/%Y, %H:%M")
+      })
+  
   data['id'] = artist.id
   data['name'] = artist.name
   data['genres'] = artist.genres
@@ -395,6 +420,10 @@ def show_artist(artist_id):
   data['seeking_venue'] = artist.seeking_venue
   data['seeking_description'] = artist.seeking_description
   data['image_link'] = artist.image_link
+  data['past_shows'] = past_shows
+  data['upcoming_shows'] = upcoming_shows
+  data['past_shows_count'] = len(past_shows)
+  data['upcoming_shows_count'] = len(upcoming_shows)
 
   #data1={
   #  "id": 4,
@@ -490,13 +519,13 @@ def edit_artist(artist_id):
   #  "seeking_description": "Looking for shows to perform at in the San Francisco Bay Area!",
   #  "image_link": "https://images.unsplash.com/photo-1549213783-8284d0336c4f?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=300&q=80"
   #}
-  # TODO: populate form with fields from artist with ID <artist_id>
+  # COMPLETE: populate form with fields from artist with ID <artist_id>
   return render_template('forms/edit_artist.html', form=form, artist=artist)
 
 @app.route('/artists/<int:artist_id>/edit', methods=['POST'])
 def edit_artist_submission(artist_id):
 
-  # TODO: take values from the form submitted, and update existing
+  # COMPLETE: take values from the form submitted, and update existing
   # artist record with ID <artist_id> using the new attributes
 
   artist = Artist.query.get_or_404(artist_id)
@@ -546,7 +575,7 @@ def edit_venue(venue_id):
   #  "seeking_description": "We are on the lookout for a local artist to play every two weeks. Please call us.",
   #  "image_link": "https://images.unsplash.com/photo-1543900694-133f37abaaa5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=400&q=60"
   #}
-  # TODO: populate form with values from venue with ID <venue_id>
+  # COMPLETE: populate form with values from venue with ID <venue_id>
   return render_template('forms/edit_venue.html', form=form, venue=venue)
 
 @app.route('/venues/<int:venue_id>/edit', methods=['POST'])
