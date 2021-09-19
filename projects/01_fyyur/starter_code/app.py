@@ -39,8 +39,9 @@ migrate = Migrate(app, db)
 # TODO Implement Show and Artist models, and complete all model relationships and properties, as a database migration.
 
 Show = db.Table('shows',
-  db.Column('artist_id', db.Integer, db.ForeignKey('artist.id'), primary_key=True),
-  db.Column('venue_id', db.Integer, db.ForeignKey('venue.id'), primary_key=True),
+  db.Column('id', db.Integer, primary_key=True),
+  db.Column('artist_id', db.Integer, db.ForeignKey('artist.id'), nullable=False),
+  db.Column('venue_id', db.Integer, db.ForeignKey('venue.id'), nullable=False),
   db.Column('start_time', db.DateTime),
 )
 
@@ -116,43 +117,50 @@ def index():
 
 @app.route('/venues')
 def venues():
-  # TODO: replace with real venues data.
+  # COMPLETE: replace with real venues data.
   # num_shows should be aggregated based on number of upcoming shows per venue.
 
-  places = Venue.query.order_by(Venue.state).group_by(Venue.id).all()
   data = []
-  for place in places:
-    data.append({
-        "city": place.city,
-        "state": place.state,
-        "venues": [{
-          "id": place.id,
-          "name": place.name,
-        }]
-    })
-  #venues = db.session.query(Venue.name).order_by(Venue.id).all()
 
-  #data=[{
-  #  "city": "San Francisco",
-  #  "state": "CA",
-  #  "venues": [{
-  #    "id": 1,
-  #    "name": "The Musical Hop",
-  #    "num_upcoming_shows": 0,
-  #  }, {
-  #    "id": 3,
-  #    "name": "Park Square Live Music & Coffee",
-  #    "num_upcoming_shows": 1,
-  #  }]
-  #}, {
-  #  "city": "New York",
-  #  "state": "NY",
-  #  "venues": [{
-  #    "id": 2,
-  #    "name": "The Dueling Pianos Bar",
-  #    "num_upcoming_shows": 0,
-  #  }]
-  #}]
+  places = db.session.query(Venue.city, Venue.state).distinct(Venue.city, Venue.state).order_by(Venue.state).all()
+  city_venues = db.session.query(Venue.id, Venue.name, Venue.city, Venue.state).all()
+  for place in places:
+    place_data = {
+      "city": place.city,
+      "state": place.state,
+      "venues": []
+    }
+    data.append(place_data)
+  for place_set in data:
+    for city_venue in city_venues:
+      location = {}
+      if city_venue.city == place_set.get("city"):
+        location["id"] = city_venue.id
+        location["name"] = city_venue.name
+        place_set["venues"].append(location)
+  
+# data=[{
+#  "city": "San Francisco",
+#  "state": "CA",
+#  "venues": [{
+#    "id": 1,
+#    "name": "The Musical Hop",
+#    "num_upcoming_shows": 0,
+#  }, {
+#    "id": 3,
+#    "name": "Park Square Live Music & Coffee",
+#    "num_upcoming_shows": 1,
+#  }]
+# }, {
+#  "city": "New York",
+#  "state": "NY",
+#  "venues": [{
+#    "id": 2,
+#    "name": "The Dueling Pianos Bar",
+#    "num_upcoming_shows": 0,
+#  }]
+# }]
+
   return render_template('pages/venues.html', areas=data)
 
 @app.route('/venues/search', methods=['POST'])
@@ -173,10 +181,36 @@ def search_venues():
 @app.route('/venues/<int:venue_id>')
 def show_venue(venue_id):
   # shows the venue page with the given venue_id
-  # TODO: replace with real venue data from the venues table, using venue_id
+  # COMPLETE: replace with real venue data from the venues table, using venue_id
   
-  venue = Venue.query.get_or_404(venue_id)
+  past_shows = []
+  upcoming_shows = []
   data = {}
+
+  venue = Venue.query.get_or_404(venue_id)
+
+  venue_past_shows = db.session.query(Show).join(Venue).filter((Show.c.venue_id == venue_id) & (Show.c.start_time <= datetime.now())).all()
+  for past_show in venue_past_shows:
+    past_show_artists = db.session.query(Artist).join(Show).filter(Artist.id == past_show.artist_id).all()
+    for past_show_artist in past_show_artists:
+      past_shows.append({
+          'artist_id': past_show.artist_id,
+          'artist_name': past_show_artist.name,
+          'artist_image_link': past_show_artist.image_link,
+          'start_time': past_show.start_time.strftime("%m/%d/%Y, %H:%M")
+      })
+
+  venue_upcoming_shows = db.session.query(Show).join(Venue).filter((Show.c.venue_id == venue_id) & (Show.c.start_time > datetime.now())).all()
+  for upcoming_show in venue_upcoming_shows:
+    upcoming_show_artists = db.session.query(Artist).join(Show).filter(Artist.id == upcoming_show.artist_id).all()
+    for upcoming_show_artist in upcoming_show_artists:
+      upcoming_shows.append({
+          'artist_id': upcoming_show.artist_id,
+          'artist_name': upcoming_show_artist.name,
+          'artist_image_link': upcoming_show_artist.image_link,
+          'start_time': upcoming_show.start_time.strftime("%m/%d/%Y, %H:%M")
+      })
+
   data['id'] = venue.id
   data['name'] = venue.name
   data['genres'] = venue.genres
@@ -189,6 +223,10 @@ def show_venue(venue_id):
   data['seeking_talent'] = venue.seeking_talent
   data['seeking_description'] = venue.seeking_description
   data['image_link'] = venue.image_link
+  data['past_shows'] = past_shows
+  data['upcoming_shows'] = upcoming_shows
+  data['past_shows_count'] = len(past_shows)
+  data['upcoming_shows_count'] = len(upcoming_shows)
 
   #data1={
   #  "id": 1,
@@ -385,6 +423,7 @@ def show_artist(artist_id):
   data = {}
   past_shows = []
   upcoming_shows = []
+
   artist = Artist.query.get_or_404(artist_id)
 
   artist_past_shows = db.session.query(Show).join(Artist).filter((Show.c.artist_id == artist_id) & (Show.c.start_time <= datetime.now())).all()
