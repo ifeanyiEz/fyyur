@@ -10,6 +10,7 @@ from flask import Flask, render_template, request, Response, flash, redirect, ur
 from flask_moment import Moment
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import backref
+from sqlalchemy import func
 import logging
 from logging import Formatter, FileHandler, error
 from flask_wtf import Form
@@ -122,6 +123,36 @@ def venues():
 
   data = []
 
+  # shows_venues = db.session.query(Venue, Show).outerjoin(Show, Venue.id == Show.c.venue_id).all()
+  # for place in shows_venues:
+  #   place_data = {
+  #       "city": place.Venue.city,
+  #       "state": place.Venue.state,
+  #       "venues": []
+  #   }
+  #   if place_data not in data:
+  #     data.append(place_data)
+  # for place_set in data:
+  #   for place in shows_venues:
+  #     location = {}
+  #     if place_set.get("city") == place.Venue.city:
+  #       location["id"] = place.Venue.id
+  #       location["name"] = place.Venue.name
+  #       #location["num_upcoming_shows"] = 
+  #       if location not in place_set["venues"]:
+  #         place_set["venues"].append(location)
+  # for place_set in data:
+  #   for location in place_set["venues"]:
+  #     for place in shows_venues:
+  #       upcoming_shows = []
+  #       if location["id"] == place.Venue.id and place.start_time != None:
+  #         upcoming = place.start_time
+  #         upcoming_shows.append(upcoming)
+  #         location["num_upcomin_shows"] = len(upcoming_shows)
+  #         print(location)
+  #         print('llllllllllllllllllllllllllllll')
+        
+
   places = db.session.query(Venue.city, Venue.state).distinct(Venue.city, Venue.state).order_by(Venue.state).all()
   city_venues = db.session.query(Venue.id, Venue.name, Venue.city, Venue.state).all()
   for place in places:
@@ -135,8 +166,11 @@ def venues():
     for city_venue in city_venues:
       location = {}
       if city_venue.city == place_set.get("city"):
-        location["id"] = city_venue.id
-        location["name"] = city_venue.name
+        upcoming_shows = db.session.query(func.count(Show.c.venue_id).label("upcoming")).filter((city_venue.id == Show.c.venue_id) & (Show.c.start_time > datetime.now())).all()
+        for show in upcoming_shows:
+          location["id"] = city_venue.id
+          location["name"] = city_venue.name
+          location["num_upcoming_shows"] = show.upcoming
         place_set["venues"].append(location)
   
 # data=[{
@@ -360,21 +394,32 @@ def create_venue_submission():
 #  Delete Venue
 #  ----------------------------------------------------------------
 
-@app.route('/venues/<venue_id>', methods=['DELETE'])
+@app.route('/venues/<venue_id>', methods=['POST'])
 def delete_venue(venue_id):
-  # TODO: Complete this endpoint for taking a venue_id, and using
+
+  # COMPLETE: Complete this endpoint for taking a venue_id, and using
   # SQLAlchemy ORM to delete a record. Handle cases where the session commit could fail.
+  
   try:
-    Venue.query.filter_by(venue_id).delete()
-    db.session.commit()
+    for_deletion = Venue.query.filter_by(id = venue_id).first_or_404()
+    if for_deletion:
+      current_session = db.object_session(for_deletion)
+      current_session.delete(for_deletion)
+      current_session.commit()
+      flash('Venue ' + for_deletion.name + ' was successfully deleted!')
+      return render_template('pages/home.html')
   except:
     db.session.rollback()
+    print(sys.exc_info())
+    return redirect(url_for('venues'))
   finally:
     db.session.close()
+
   # BONUS CHALLENGE: Implement a button to delete a Venue on a Venue Page, have it so that
   # clicking that button delete it from the db then redirect the user to the homepage
   #return None
-  return render_template('pages/home.html')
+
+  #return render_template('pages/home.html')
 
 #  Artists
 #  ----------------------------------------------------------------
