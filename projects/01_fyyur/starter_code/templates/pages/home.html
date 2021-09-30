@@ -21,5 +21,55 @@
 	<div class="col-sm-6 hidden-sm hidden-xs">
 		<img id="front-splash" src="{{ url_for('static',filename='img/front-splash.jpg') }}" alt="Front Photo of Musical Band" />
 	</div>
+	<div class="respond col-sm-12">
+		<p class="lead">Recently Listed Artists.</p>
+		<table>
+			<tr>
+				<th>Artist Name</th>
+				<th>Artist City</th>
+				<th>Artist State</th>
+				<th>Contact Phone</th>
+				<th>Artist Website</th>
+				<th>Upcoming Shows</th>
+				<th>Actions</th>
+			</tr>
+			{% for artist in artist_data %}
+			<tr">
+				<td>{{ artist.name }}</td>
+				<td>{{ artist.city }}</td>
+				<td>{{ artist.state }}</td>
+				<td>{{ artist.phone }}</td>
+				<td>{{ artist.website }}</td>
+				<td>{{ artist.num_upcoming_shows }}</td>
+				<td><a href="/artists/{{ artist.id }}"><button class="btn btn-primary btn-xs">Details</button></a></td>
+			</tr>
+			{% endfor %}
+		</table>
+	</div>
+	<div class="respond col-sm-12">
+		<p class="lead">Recently Listed Venues.</p>
+		<table>
+			<tr>
+				<th>Venue Name</th>
+				<th>Venue City</th>
+				<th>Venue State</th>
+				<th>Contact Phone</th>
+				<th>Venue Website</th>
+				<th>Upcoming Shows</th>
+				<th>Actions</th>
+			</tr>
+			{% for venue in venue_data %}
+			<tr>
+				<td>{{ venue.name }}</td>
+				<td>{{ venue.city }}</td>
+				<td>{{ venue.state }}</td>
+				<td>{{ venue.phone }}</td>
+				<td>{{ venue.website }}</td>
+				<td>{{ venue.num_upcoming_shows }}</td>
+				<td><a href="/venues/{{ venue.id }}"><button class="btn btn-primary btn-xs">Details</button></a></td>
+			</tr>
+			{% endfor %}
+		</table>
+	</div>
 </div>
 {% endblock %}
