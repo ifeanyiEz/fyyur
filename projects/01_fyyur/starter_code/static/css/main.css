@@ -209,3 +209,23 @@ h2.monospace {
 .subtitle {
   opacity: 0.5;
 }
+
+/*****************************************************************************
+ * Ifeanyi's home table styles
+ ****************************************************************************/
+
+table,
+td,
+th {
+  border: 1px solid #dddddd;
+  padding: 0.5em;
+  text-align: left;
+}
+
+table {
+    table-layout: auto;
+}
+
+.respond {
+  overflow-x: auto;
+}
