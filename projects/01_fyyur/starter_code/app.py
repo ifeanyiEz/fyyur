@@ -113,7 +113,40 @@ app.jinja_env.filters['datetime'] = format_datetime
 
 @app.route('/')
 def index():
-  return render_template('pages/home.html')
+
+  venue_data = []
+  artist_data = []
+
+  recent_venues = db.session.query(Venue).order_by(Venue.created.desc()).limit(10)
+  for location in recent_venues:
+    location_data = {}
+    upcoming_shows = db.session.query(func.count(Show.c.venue_id).label("upcoming")).filter((location.id == Show.c.venue_id) & (Show.c.start_time > datetime.now())).all()
+    for show in upcoming_shows:
+      location_data['id'] = location.id
+      location_data['name'] = location.name
+      location_data['city'] = location.city
+      location_data['state'] = location.state
+      location_data['phone'] = location.phone
+      location_data['website'] = location.website_link
+      location_data['num_upcoming_shows'] = show.upcoming
+      venue_data.append(location_data)
+
+  recent_artists = db.session.query(Artist).order_by(Artist.created.desc()).limit(10)
+  for band in recent_artists:
+    band_data = {}
+    upcoming_shows = db.session.query(func.count(Show.c.artist_id).label("upcoming")).filter((band.id == Show.c.artist_id) & (Show.c.start_time > datetime.now())).all()
+    for show in upcoming_shows:
+      band_data['id'] = band.id
+      band_data['name'] = band.name
+      band_data['city'] = band.city
+      band_data['state'] = band.state
+      band_data['phone'] = band.phone
+      band_data['website'] = band.website_link
+      band_data['num_upcoming_shows'] = show.upcoming
+      artist_data.append(band_data)
+
+
+  return render_template('pages/home.html', venue_data = venue_data, artist_data = artist_data)
 
 
 #  Venues
@@ -125,8 +158,7 @@ def venues():
   # num_shows should be aggregated based on number of upcoming shows per venue.
 
   data = []
-        
-
+  
   places = db.session.query(Venue.city, Venue.state).distinct(Venue.city, Venue.state).order_by(Venue.state).all()
   city_venues = db.session.query(Venue.id, Venue.name, Venue.city, Venue.state).all()
   for place in places:
