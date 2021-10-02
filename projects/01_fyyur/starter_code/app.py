@@ -51,8 +51,6 @@ def index():
       location_data['city'] = location.city
       location_data['state'] = location.state
       location_data['phone'] = location.phone
-      location_data['website'] = location.website_link
-      location_data['num_upcoming_shows'] = show.upcoming
       venue_data.append(location_data)
 
   recent_artists = db.session.query(Artist).order_by(Artist.created.desc()).limit(10)
@@ -65,8 +63,6 @@ def index():
       band_data['city'] = band.city
       band_data['state'] = band.state
       band_data['phone'] = band.phone
-      band_data['website'] = band.website_link
-      band_data['num_upcoming_shows'] = show.upcoming
       artist_data.append(band_data)
 
 
@@ -655,7 +651,7 @@ def edit_venue_submission(venue_id):
   try:
     venue.name = form.name.data
     venue.city = form.city.data
-    venue.state = form.city.data
+    venue.state = form.state.data
     venue.address = form.address.data
     venue.phone = form.phone.data
     venue.genres = form.genres.data

@@ -229,3 +229,7 @@ table {
 .respond {
   overflow-x: auto;
 }
+
+.all {
+  margin-top: 10px;
+}

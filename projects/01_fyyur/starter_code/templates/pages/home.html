@@ -21,41 +21,42 @@
 	<div class="col-sm-6 hidden-sm hidden-xs">
 		<img id="front-splash" src="{{ url_for('static',filename='img/front-splash.jpg') }}" alt="Front Photo of Musical Band" />
 	</div>
-	<div class="respond col-sm-12">
+</div>
+<div class="row">
+	<div class="respond col-sm-6">
 		<p class="lead">Recently Listed Artists.</p>
 		<table>
 			<tr>
-				<th>Artist Name</th>
-				<th>Artist City</th>
-				<th>Artist State</th>
-				<th>Contact Phone</th>
-				<th>Artist Website</th>
-				<th>Upcoming Shows</th>
+				<th>Name</th>
+				<th>City</th>
+				<th>State</th>
+				<th>Phone</th>
 				<th>Actions</th>
 			</tr>
 			{% for artist in artist_data %}
-			<tr">
+			<tr>
 				<td>{{ artist.name }}</td>
 				<td>{{ artist.city }}</td>
 				<td>{{ artist.state }}</td>
 				<td>{{ artist.phone }}</td>
-				<td>{{ artist.website }}</td>
-				<td>{{ artist.num_upcoming_shows }}</td>
 				<td><a href="/artists/{{ artist.id }}"><button class="btn btn-primary btn-xs">Details</button></a></td>
 			</tr>
 			{% endfor %}
 		</table>
+		<div class="row all">
+			<div class="col-sm-4">
+				<a href="/artists"><button class="btn btn-warning btn-xs">View All Artists</button></a>
+			</div>
+		</div>
 	</div>
-	<div class="respond col-sm-12">
+	<div class="respond col-sm-6">
 		<p class="lead">Recently Listed Venues.</p>
 		<table>
 			<tr>
-				<th>Venue Name</th>
-				<th>Venue City</th>
-				<th>Venue State</th>
-				<th>Contact Phone</th>
-				<th>Venue Website</th>
-				<th>Upcoming Shows</th>
+				<th>Name</th>
+				<th>City</th>
+				<th>State</th>
+				<th>Phone</th>
 				<th>Actions</th>
 			</tr>
 			{% for venue in venue_data %}
@@ -64,12 +65,15 @@
 				<td>{{ venue.city }}</td>
 				<td>{{ venue.state }}</td>
 				<td>{{ venue.phone }}</td>
-				<td>{{ venue.website }}</td>
-				<td>{{ venue.num_upcoming_shows }}</td>
 				<td><a href="/venues/{{ venue.id }}"><button class="btn btn-primary btn-xs">Details</button></a></td>
 			</tr>
 			{% endfor %}
 		</table>
+		<div class="row all">
+			<div class="col-sm-4">
+				<a href="/venues"><button class="btn btn-warning btn-xs">View All Venues</button></a>
+			</div>
+		</div>
 	</div>
 </div>
 {% endblock %}
