@@ -205,8 +205,6 @@ def show_venue(venue_id):
   data['seeking_talent'] = venue.seeking_talent
   data['seeking_description'] = venue.seeking_description
   data['image_link'] = venue.image_link
-  print(data['image_link'])
-  print('ggggggggggggggggggggggggggggggg')
   data['past_shows'] = past_shows
   data['upcoming_shows'] = upcoming_shows
   data['past_shows_count'] = len(past_shows)
