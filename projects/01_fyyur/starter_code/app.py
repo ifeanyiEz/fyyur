@@ -205,6 +205,8 @@ def show_venue(venue_id):
   data['seeking_talent'] = venue.seeking_talent
   data['seeking_description'] = venue.seeking_description
   data['image_link'] = venue.image_link
+  print(data['image_link'])
+  print('ggggggggggggggggggggggggggggggg')
   data['past_shows'] = past_shows
   data['upcoming_shows'] = upcoming_shows
   data['past_shows_count'] = len(past_shows)
@@ -337,7 +339,7 @@ def create_venue_submission():
     abort (400)
   else:
     #return jsonify(body)
-    return render_template('pages/home.html')
+    return redirect(url_for('index'))
 
 #  Delete Venue
 #  ----------------------------------------------------------------
@@ -719,7 +721,7 @@ def create_artist_submission():
   if error:
     abort (400)
   else:
-    return render_template('pages/home.html')
+    return redirect(url_for('index'))
 
 
 #  Shows
