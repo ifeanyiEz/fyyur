@@ -214,6 +214,8 @@ h2.monospace {
  * Ifeanyi's home table styles
  ****************************************************************************/
 
+/*Ref: https://tympanus.net/codrops/css_reference/border-collapse, https://www.w3schools.com/html/html_tables.asp,  */
+
 table,
 td,
 th {
